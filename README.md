@@ -12,7 +12,7 @@ Build the go file, and pick an authentication method. There are two options to a
 
 Alternatively, you can receive live data by using full OAuth authentication. Create a file (default is `config.toml` in working directory) and add the following information:
 
-```
+```toml
 refresh_token = [TDAmeritrade Refresh Token]
 consumer_key = [Consumer Key]
 ```
