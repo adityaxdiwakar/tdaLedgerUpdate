@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -90,13 +89,9 @@ func main() {
 		log.Fatalf("error: could not get TDA response: %v\n", err)
 	}
 
-	bodyBytes, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatalf("error: could not get TDA response: %v\n", err)
-	}
-
 	var quotes map[string]QuoteEntryLastPrice
-	json.Unmarshal(bodyBytes, &quotes)
+	json.NewDecoder(res.Body).Decode(&quotes)
+	res.Body.Close()
 
 	/* make file */
 	pricedb, err := os.OpenFile(*priceDbFile,
