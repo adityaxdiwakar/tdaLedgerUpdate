@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -21,56 +22,8 @@ type tdaCredentials struct {
 	ConsumerKey  string `toml:"consumer_key"`
 }
 
-type QuoteEntry struct {
-	AssetType                          string  `json:"assetType"`
-	AssetMainType                      string  `json:"assetMainType"`
-	Cusip                              string  `json:"cusip"`
-	AssetSubType                       string  `json:"assetSubType"`
-	Symbol                             string  `json:"symbol"`
-	Description                        string  `json:"description"`
-	BidPrice                           float64 `json:"bidPrice"`
-	BidSize                            int     `json:"bidSize"`
-	BidID                              string  `json:"bidId"`
-	AskPrice                           float64 `json:"askPrice"`
-	AskSize                            int     `json:"askSize"`
-	AskID                              string  `json:"askId"`
-	LastPrice                          float64 `json:"lastPrice"`
-	LastSize                           int     `json:"lastSize"`
-	LastID                             string  `json:"lastId"`
-	OpenPrice                          float64 `json:"openPrice"`
-	HighPrice                          float64 `json:"highPrice"`
-	LowPrice                           float64 `json:"lowPrice"`
-	BidTick                            string  `json:"bidTick"`
-	ClosePrice                         float64 `json:"closePrice"`
-	NetChange                          float64 `json:"netChange"`
-	TotalVolume                        int     `json:"totalVolume"`
-	QuoteTimeInLong                    int64   `json:"quoteTimeInLong"`
-	TradeTimeInLong                    int64   `json:"tradeTimeInLong"`
-	Mark                               float64 `json:"mark"`
-	Exchange                           string  `json:"exchange"`
-	ExchangeName                       string  `json:"exchangeName"`
-	Marginable                         bool    `json:"marginable"`
-	Shortable                          bool    `json:"shortable"`
-	Volatility                         float64 `json:"volatility"`
-	Digits                             int     `json:"digits"`
-	Five2WkHigh                        float64 `json:"52WkHigh"`
-	Five2WkLow                         float64 `json:"52WkLow"`
-	NAV                                int     `json:"nAV"`
-	PeRatio                            int     `json:"peRatio"`
-	DivAmount                          float64 `json:"divAmount"`
-	DivYield                           float64 `json:"divYield"`
-	DivDate                            string  `json:"divDate"`
-	SecurityStatus                     string  `json:"securityStatus"`
-	RegularMarketLastPrice             float64 `json:"regularMarketLastPrice"`
-	RegularMarketLastSize              int     `json:"regularMarketLastSize"`
-	RegularMarketNetChange             float64 `json:"regularMarketNetChange"`
-	RegularMarketTradeTimeInLong       int64   `json:"regularMarketTradeTimeInLong"`
-	NetPercentChangeInDouble           float64 `json:"netPercentChangeInDouble"`
-	MarkChangeInDouble                 float64 `json:"markChangeInDouble"`
-	MarkPercentChangeInDouble          float64 `json:"markPercentChangeInDouble"`
-	RegularMarketPercentChangeInDouble float64 `json:"regularMarketPercentChangeInDouble"`
-	Delayed                            bool    `json:"delayed"`
-	RealtimeEntitled                   bool    `json:"realtimeEntitled"`
+type QuoteEntryLastPrice struct {
+	LastPrice float64 `json:"lastPrice"`
 }
 
 type QuoteRequest struct {
@@ -137,10 +90,13 @@ func main() {
 		log.Fatalf("error: could not get TDA response: %v\n", err)
 	}
 
-	defer res.Body.Close()
+	bodyBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatalf("error: could not get TDA response: %v\n", err)
+	}
 
-	var quotes map[string]QuoteEntry
-	json.NewDecoder(res.Body).Decode(&quotes)
+	var quotes map[string]QuoteEntryLastPrice
+	json.Unmarshal(bodyBytes, &quotes)
 
 	/* make file */
 	pricedb, err := os.OpenFile(*priceDbFile,
@@ -156,7 +112,7 @@ func main() {
 		quotedTickers[ticker] = true
 		pricedb.WriteString(
 			fmt.Sprintf("P %s %s $%.2f\n",
-				GetTimeString(), ticker, quote.Mark))
+				GetTimeString(), ticker, quote.LastPrice))
 	}
 
 	for _, ticker := range commodities {
@@ -193,7 +149,7 @@ func GetCommodities(ledger string, binary string) []string {
 
 func IsTicker(s string) bool {
 	for _, e := range s {
-		if (e < 'A' || e > 'Z') && (e < '0' || e > '9') && e != '.' {
+		if (e < 'A' || e > 'Z') && (e < '0' || e > '9') && e != '.' && e != '_' {
 			return false
 		}
 	}
