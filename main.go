@@ -39,6 +39,10 @@ func main() {
 	ledgerBinary := flag.String("b", "ledger", "Ledger Binary")
 	ledgerFile := flag.String("f", "ledger.ledger", "Ledger File")
 	priceDbFile := flag.String("p", "prices.db", "Price Database File")
+
+	/* access token update file */
+	accessTokenFile := flag.String("afile", "", "TDA Access Token")
+
 	flag.Parse()
 
 	/* get commodites from ledger file */
@@ -70,18 +74,48 @@ func main() {
 			log.Fatalf("error: could not parse configuration: %v\n", err)
 		}
 
-		tdaSession := tda.Session{
-			Refresh:     conf.RefreshToken,
-			ConsumerKey: conf.ConsumerKey,
-			RootUrl:     "https://api.tdameritrade.com/v1",
+		if *accessTokenFile == "" {
+			log.Fatalf("error: you need to provide a token file, cannot generate on the fly")
 		}
 
-		accessToken, err := tdaSession.GetAccessToken()
+		info, err := os.Stat(*accessTokenFile)
 		if err != nil {
-			log.Fatalf("error: could not get access token: %v\n", err)
+			log.Fatalf("error: could not open token file: %v\n", err)
 		}
 
-		req.Header.Set("Authorization", "Bearer "+accessToken)
+		fileTime := info.ModTime()
+		dat, err := os.ReadFile(*accessTokenFile)
+		if err != nil {
+			log.Fatalf("error: could not open access token file: %v\n", err)
+		}
+
+		if fileTime.Before(time.Now().Add(-25*time.Minute)) || string(dat) == "" {
+			fmt.Println("getting new token")
+			tdaSession := tda.Session{
+				Refresh:     conf.RefreshToken,
+				ConsumerKey: conf.ConsumerKey,
+				RootUrl:     "https://api.tdameritrade.com/v1",
+			}
+
+			accessToken, err := tdaSession.GetAccessToken()
+			if err != nil {
+				log.Fatalf("error: could not get access token: %v\n", err)
+			}
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+
+			if err = os.WriteFile(*accessTokenFile, []byte(accessToken), 0644); err != nil {
+				log.Fatalf("error: could not write token: %v\n", err)
+			}
+
+			currentTime := time.Now().Local()
+			err = os.Chtimes(*accessTokenFile, currentTime, currentTime)
+			if err != nil {
+				log.Fatalf("error: could not change time on access file: %v\n", err)
+			}
+		} else {
+			fmt.Println("using old token")
+			req.Header.Set("Authorization", "Bearer "+string(dat))
+		}
 	}
 
 	res, err := http.DefaultClient.Do(req)
