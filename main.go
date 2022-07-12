@@ -90,7 +90,6 @@ func main() {
 		}
 
 		if fileTime.Before(time.Now().Add(-25*time.Minute)) || string(dat) == "" {
-			fmt.Println("getting new token")
 			tdaSession := tda.Session{
 				Refresh:     conf.RefreshToken,
 				ConsumerKey: conf.ConsumerKey,
@@ -113,7 +112,6 @@ func main() {
 				log.Fatalf("error: could not change time on access file: %v\n", err)
 			}
 		} else {
-			fmt.Println("using old token")
 			req.Header.Set("Authorization", "Bearer "+string(dat))
 		}
 	}
