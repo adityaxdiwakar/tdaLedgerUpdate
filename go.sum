@@ -1,6 +1,9 @@
 github.com/BurntSushi/toml v1.2.0 h1:Rt8g24XnyGTyglgET/PRUNlrUeu9F5L+7FilkXfZgs0=
 github.com/BurntSushi/toml v1.2.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
-github.com/adityaxdiwakar/tda-go v1.0.0 h1:T0lpGIrARkMYIMsqGv6uOE2+GhXz96Quf5paGEOM8UA=
-github.com/adityaxdiwakar/tda-go v1.0.0/go.mod h1:IdlyE0Lvz7UZH1xnnKEw332ZZ8zvO5lGLXnbBKzJQi4=
-github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASuANWTrk=
-github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
+github.com/adityaxdiwakar/tda-go v1.1.0 h1:96RQMYwTECy/TbIyX5+Z0ide8MJ7tdrmQ+cmDgcrcw4=
+github.com/adityaxdiwakar/tda-go v1.1.0/go.mod h1:1wJ8ftjdiSyr0YcwJovZnDFFNzDOT9Jsil/VEa1tdmA=
+github.com/google/go-cmp v0.5.2 h1:X2ev0eStA3AbceY54o37/0PQ/UWqKEiiO2dKL5OPaFM=
+github.com/google/go-cmp v0.5.2/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
+github.com/google/go-querystring v1.1.0 h1:AnCroh3fv4ZBgVIf1Iwtovgjaw/GiKJo8M8yD/fhyJ8=
+github.com/google/go-querystring v1.1.0/go.mod h1:Kcdr2DB4koayq7X8pmAG4sNG59So17icRSOU623lUBU=
+golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
